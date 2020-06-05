@@ -5,13 +5,13 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="ocus_helper",
-    version="0.0.1",
+    version="0.0.3",
     author="Megan Fillion",
     author_email="megan@ocus.com",
     description="methods pertaining to database and server calls",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/pypa/sampleproject",
+    url="https://github.com/megan-fillion/ocus_helper",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
