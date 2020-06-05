@@ -8,37 +8,36 @@ import pandas as pd
 import boto3
 from tqdm import tqdm
 import os, sys
-from toto
 
 ###Ouiflash database###
 class Database:
-	def __init__(self, config, connection):
-		conf = config[connection]
-		self.connect = mysql.connector.connect(host=conf['host'], 
-									   		   user=conf['user'], 
-									   		   password=conf['password'],
-									   		   database=conf['database'],
-									   		   ssl_ca= conf['ssl'])  
-		self.cursor = self.connect.cursor()
+    def __init__(self, config, connection):
+    	conf = config[connection]
+    	self.connect = mysql.connector.connect(host=conf['host'], 
+    								   		   user=conf['user'], 
+    								   		   password=conf['password'],
+    								   		   database=conf['database'],
+    								   		   ssl_ca= conf['ssl'])  
+    	self.cursor = self.connect.cursor()
 
-	def execute(self, command):
-		self.connect.ping(reconnect=True, attempts=1, delay=0)
-		self.cursor.execute(command)
-		return self.cursor.fetchall()
+    def execute(self, command):
+    	self.connect.ping(reconnect=True, attempts=1, delay=0)
+    	self.cursor.execute(command)
+    	return self.cursor.fetchall()
 
-	def insert(self, command):		
-		self.connect.ping(reconnect=True, attempts=1, delay=0)
-		self.cursor.execute(command)
-		self.connect.commit()
+    def insert(self, command):		
+    	self.connect.ping(reconnect=True, attempts=1, delay=0)
+    	self.cursor.execute(command)
+    	self.connect.commit()
 
-	def get_labels(self):
-		table_des = self.cursor.description
-		return [col[0] for col in table_des]
+    def get_labels(self):
+    	table_des = self.cursor.description
+    	return [col[0] for col in table_des]
 
-	def close(self):
-		self.connect.close()
+    def close(self):
+        self.connect.close()
 
-	###Pandas dataframe functions###
+    ###Pandas dataframe functions###
     def select_reseau(self, paths):
         """
         Input : Datascience_path list
@@ -70,7 +69,7 @@ class Database:
         df = pd.DataFrame(self.execute(query_vert))
         df.columns = columns
         if dataf:
-        	return df
+            return df
         else:
         	return df.values
 
@@ -161,19 +160,19 @@ class S3:
         return list_objects
 
     def download_folder(s3_path, local_path, bucket='ouiflash-datascience'):
-		my_bucket = self.resource.Bucket(bucket)
-		objects = my_bucket.objects.filter(Prefix=s3_path)
+    	my_bucket = self.resource.Bucket(bucket)
+    	objects = my_bucket.objects.filter(Prefix=s3_path)
 
-		for obj in tqdm(objects):
-			path, filename = os.path.split(obj.key)
-			try:
-				my_bucket.download_file(obj.key, os.path.join(local_path, filename))
-			except Exception as e:
-				print(e)
-				print(os.path.join(local_path, filename))
-				pass
-			except KeyboardInterrupt:
-				sys.exit()
+    	for obj in tqdm(objects):
+    		path, filename = os.path.split(obj.key)
+    		try:
+    			my_bucket.download_file(obj.key, os.path.join(local_path, filename))
+    		except Exception as e:
+    			print(e)
+    			print(os.path.join(local_path, filename))
+    			pass
+    		except KeyboardInterrupt:
+    			sys.exit()
 
     def download_files(self, input_data, local_dir, s3_path, bucket='ouiflash-datascience'):
         for index, row in tqdm(input_data.iterrows()):
@@ -207,17 +206,17 @@ class S3:
     			sys.exit()
 
     def upload_files(s3_path, paths, bucket:'ouiflash-datascience'):
-    	###upload certain paths###
-    	my_bucket = self.resource.Bucket(bucket)
-    	for path in tqdm(paths):
-    		try:
-    			my_bucket.upload_file(path, os.path.join(s3_path, filename))
-	    	except Exception as e:
-	    		print(e)
-	    		print(path)
-	    		pass
-	    	except KeyboardInterrupt:
-	    		sys.exit()
+        ###upload certain paths###
+        my_bucket = self.resource.Bucket(bucket)
+        for path in tqdm(paths):
+        	try:
+        		my_bucket.upload_file(path, os.path.join(s3_path, filename))
+        	except Exception as e:
+        		print(e)
+        		print(path)
+        		pass
+        	except KeyboardInterrupt:
+        		sys.exit()
 
     def rename(mapped_paths, bucket='ouiflash-datascience'):
     	###Rename files in s3###
