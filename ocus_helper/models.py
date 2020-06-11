@@ -18,24 +18,22 @@ class Database:
     								   		   password=conf['password'],
     								   		   database=conf['database'],
     								   		   ssl_ca= conf['ssl'])  
-    	self.cursor = self.connect.cursor()
+    	self.cursor = self.connect.cursor(buffered=True)
 
     def execute(self, command):
     	self.connect.ping(reconnect=True, attempts=1, delay=0)
     	self.cursor.execute(command)
     	return self.cursor.fetchall()
 
+    def execute_raw(self, command):
+        self.connect.ping(reconnect=True, attempts=1, delay=0)
+        self.cursor.execute(command)
+        return self.cursor
+
     def insert(self, command):		
     	self.connect.ping(reconnect=True, attempts=1, delay=0)
     	self.cursor.execute(command)
     	self.connect.commit()
-
-    def get_labels(self):
-    	table_des = self.cursor.description
-    	return [col[0] for col in table_des]
-
-    def close(self):
-        self.connect.close()
 
     ###Pandas dataframe functions###
     def select_reseau(self, paths):
@@ -53,7 +51,7 @@ class Database:
         	inner join reseau r on r.id=u.id_reseau
         	WHERE p.datascience_path IN {}
         '''.format(tuple(paths))
-        df = pd.DataFrame(self.execute(query_valid))
+        df = pd.DataFrame(self.execute_raw(query_valid))
         df.columns = ['datascience_path', 'reseau']
         return df
 
@@ -66,7 +64,7 @@ class Database:
         Last update 18 May 2020
         """
         query_vert = '''SELECT {} FROM reseau WHERE verticale_compta = "{}"'''.format(','.join(columns), vertical)
-        df = pd.DataFrame(self.execute(query_vert))
+        df = pd.DataFrame(self.execute_raw(query_vert))
         df.columns = columns
         if dataf:
             return df
@@ -82,7 +80,7 @@ class Database:
         Returns rows where path exists and images have been delivered, limited to the number of rows given in entry
         alternative : version with only light problems
         """
-        df = pd.DataFrame(self.execute(query))
+        df = pd.DataFrame(self.execute_raw(query))
         df.columns = ["datascience_path"]
         return df.values
 
@@ -93,7 +91,7 @@ class Database:
 
         Generic method to select any fields according to any condition
         """
-        cursor = self.execute(query)
+        cursor = self.execute_raw(query)
         df = pd.DataFrame(cursor)
         num_fields = len(cursor.description)
         df.columns = [i[0] for i in cursor.description]
@@ -102,6 +100,12 @@ class Database:
         else:
             return df.values
 
+    def get_labels(self):
+        table_des = self.cursor.description
+        return [col[0] for col in table_des]
+
+    def close(self):
+        self.connect.close()
 
 ###Nas object connects to Bengio && MediaNef###
 class Nas:

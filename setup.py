@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="ocus_helper",
-    version="0.0.8",
+    version="0.0.9",
     author="Megan Fillion",
     author_email="megan@ocus.com",
     description="methods pertaining to database and server calls",
